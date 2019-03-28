@@ -1,34 +1,46 @@
 import React, { Component } from 'react';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
+import { Security, SecureRoute, ImplicitCallback } from '@okta/okta-react';
 
 import Navbar from './comps/layout/Navbar';
 import Home from './comps/pages/Home';
 import Member from './comps/pages/Member';
+import Login from './comps/auth/Login';
+
+import './App.css';
+
+function onAuthRequired({ history }) {
+  history.push('/login');
+}
 
 class App extends Component {
-    render() {
-        return ( <
-            Router >
-            <
-            div className = "App" >
-            <
-            Navbar / >
-            <
-            div class = "container" >
-            <
-            Route path = "/"
-            exact = { true }
-            component = { Home }
-            /> <
-            Route path = "/member"
-            exact = { true }
-            component = { Member }
-            /> <
-            /div> <
-            /div> <
-            /Router>
-        );
-    }
+  render() {
+    return (
+      <Router>
+        <Security
+          issuer="https://dev-739813.okta.com/oauth2/default"
+          client_id="0oae7po3xOGGjTK2A356"
+          redirect_uri={window.location.origin + '/implicit/callback'}
+          onAuthRequired={onAuthRequired}
+        >
+          <div className="App">
+            <Navbar />
+            <div className="container">
+              <Route path="/" exact={true} component={Home} />
+              <SecureRoute path="/member" exact={true} component={Member} />
+              <Route
+                path="/login"
+                render={() => (
+                  <Login baseUrl="https://dev-739813.okta.com" />
+                )}
+              />
+              <Route path="/implicit/callback" component={ImplicitCallback} />
+            </div>
+          </div>
+        </Security>
+      </Router>
+    );
+  }
 }
 
 export default App;
